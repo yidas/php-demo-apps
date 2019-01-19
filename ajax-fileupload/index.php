@@ -63,7 +63,7 @@ if ($_POST || $_FILES) {
 			# Check supported extension
 			if (in_array($extension, $extensionMap)) {
 				
-				if (!$file['tmp_name'][$key]) {
+				if (!$files['tmp_name'][$key]) {
 					
 					$errorCallback = ['code'=>400, 'msg'=>'Your file may exceed the max upload size'];
 				}
@@ -81,7 +81,7 @@ if ($_POST || $_FILES) {
 
 		$code = $flag[403] ? 403 : 200;
 
-		$callback = ($errorCallback) ? $errorCallback : ['code'=>$code, 'images'=>$imagePathList];
+		$callback = isset($errorCallback) ? $errorCallback : ['code'=>$code, 'images'=>$imagePathList];
 	}
 	
 	echo json_encode($callback);
