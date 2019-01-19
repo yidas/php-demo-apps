@@ -1,7 +1,10 @@
 <?php
 
-if ($_POST || $_FILES) {
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
 
+if ($_POST || $_FILES) {
+	
 	/**
 	 * Configuration
 	 */
@@ -24,10 +27,14 @@ if ($_POST || $_FILES) {
 	if ($file && $file['name']) {
 		
 		$extensionMap = ['jpg', 'jpeg', 'gif', 'png'];
-		$extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+		$extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
 		# Check supported extension
 		if (in_array($extension, $extensionMap)) {
+
+			if (!$file['tmp_name']) {
+				$callback = ['code'=>400, 'msg'=>'Your file may exceed the max upload size'];
+			}
 
 			$filePath = 'uploaded_images/image.'.$extension;
 			$result = move_uploaded_file($file['tmp_name'], $filePath);
@@ -51,11 +58,16 @@ if ($_POST || $_FILES) {
 
 		foreach ($files['name'] as $key => $fileName) {
 	
-			$extension = pathinfo($fileName, PATHINFO_EXTENSION);
+			$extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
 			# Check supported extension
 			if (in_array($extension, $extensionMap)) {
-
+				
+				if (!$file['tmp_name'][$key]) {
+					
+					$errorCallback = ['code'=>400, 'msg'=>'Your file may exceed the max upload size'];
+				}
+				
 				$filePath = "uploaded_images/image[{$key}].{$extension}";
 				$result = move_uploaded_file($files['tmp_name'][$key], $filePath);
 
@@ -66,10 +78,10 @@ if ($_POST || $_FILES) {
 				$flag[403] = 1;
 			}
 		}
-		
+
 		$code = $flag[403] ? 403 : 200;
 
-		$callback = ['code'=>$code, 'images'=>$imagePathList];
+		$callback = ($errorCallback) ? $errorCallback : ['code'=>$code, 'images'=>$imagePathList];
 	}
 	
 	echo json_encode($callback);
