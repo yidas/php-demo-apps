@@ -121,7 +121,8 @@ if ($_POST || $_FILES) {
 	Multiple:<br/>
 	<input id="jq-fileupload-multiple" type="file" name="multiple_img[]" multiple /><br />
 	<br />
-	<img id="showImg" src="" style="display:none;max-width:500px;max-height:500px;" />
+	<div id="showImg"></div>
+	<img src="" style="display:none;max-width:500px;max-height:500px;" />
 
 </div>
 <!--/Container-->
@@ -247,12 +248,20 @@ if ($_POST || $_FILES) {
 			// console.log(data);
 	    	if (data.code==200) {
 
-	    		data.image = (typeof data.image != 'undefined') ? data.image : data.images[0];
-
+	    		var images = (typeof data.image != 'undefined') ? [data.image] : data.images;
+				console.log(images)
 	    		// Show Image
 				d = new Date();
-				$("#showImg").fadeOut(function(){
-					$(this).attr('src', data.image+'?'+d.getTime()).fadeIn();
+				imageLoading(function () {
+
+					$preview = $("#showImg").empty();
+
+					$.each(images, function (k, image) {
+						$preview.append('<img src="'+image+'?'+d.getTime()+'" style="max-width:500px;max-height:500px;" />')
+							
+					});
+
+					$preview.fadeIn();
 				});
 
 	      	} else {
@@ -261,11 +270,14 @@ if ($_POST || $_FILES) {
 	      	};
 	    };
 
-	    function imageLoading () {
-	    	
-	    	$("#showImg").fadeOut(function(){
-				$(this).attr('src', 'loading_icon.gif').fadeIn();
+	    function imageLoading (callback) {
+			
+			$("#showImg").fadeOut(function () {
+				$(this).empty()
+					.append('<img src="loading_icon.gif" style="max-width:500px;max-height:500px;" />')
+					.fadeIn(callback);
 			});
+				
 	    }
 		
 	</script>
